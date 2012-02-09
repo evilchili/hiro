@@ -16,6 +16,7 @@ var Board = function(args) {
 	self.pixelwidth  = 0;
 	self.pixelheight = 0;
 
+	self._layers     = [];
 	self._style      = new Object();
 	self._tile       = new Object();
 	self._hooks      = [];
@@ -83,6 +84,50 @@ var Board = function(args) {
 		return obj;
 	};
 
+	self.add_layer = function(name, index) {
+		if ( ! index ) index=self._layers.length;
+		self._layers.splice(index, 0, { 'name' : name, 'obj' : new Kinetic.Layer() });
+		return self._layers[index].obj;
+	};
+
+	self.get_layer_at = function(index) {
+		if ( index > self._layers.length || index < 0 ) 
+			return undefined;
+		return self._layers[index].obj;
+	};
+	self.get_layer_position = function(name) {
+		for ( var i in self._layers ) {
+			if ( self._layers[i].name == name )
+				return i;
+		}
+		return undefined;
+	};
+	self.get_layer = function(name) {
+		for ( var i in self._layers ) {
+			if ( self._layers[i].name == name )
+				return self._layers[i].obj;
+		}
+		return undefined;
+	};
+	self.get_layers = function() {
+		var o = [];
+		for ( var l in self._layers ) {
+			o.push(self._layers[l].obj);
+		}
+		return o;
+	}
+	self.reset_stage = function() {
+		self.stage.clear();
+		for ( var l in self._layers ) {
+			self.stage.add( self._layers[l].obj );
+		}
+	};
+	self.draw_layers = function() {
+		for ( var l in self._layers ) {
+			self._layers[l].obj.draw();
+		}
+	};	
+
 	self.init = function() {
 
 		// some precalcs for tile geometry
@@ -133,36 +178,28 @@ var Board = function(args) {
 			side_strokeStyle  : 'transparent',
 			side_lineWidth    : 'transparent',
 		});
-	
+
 		// set up the KineticJS stage
 		self.stage  = new Kinetic.Stage( self.id, ( self.width || self.parent.pixelwidth ), ( self.height || self.parent.pixelheight ) );
 	
-		self.layers = {
-			'background' : new Kinetic.Layer(),
-			'3dtiles'    : new Kinetic.Layer(),
-			'tiles'      : new Kinetic.Layer(),
-			'ui'         : new Kinetic.Layer(),
-		};
-		self.layers['background'].listen(false);
-		self.layers['3dtiles'].listen(false);
-	
-		self.layers['background'].add( new Kinetic.Shape(function() {
+		self.add_layer('background').listen(false);
+		self.add_layer('3dtiles').listen(false);
+		self.add_layer('tiles');
+		self.add_layer('ui');
+
+		self.get_layer_at(0).add( new Kinetic.Shape(function() {
 			c = this.getContext();
 			c.beginPath();
 		   	c.fillStyle = "#8888FF";
 			c.fillRect( 0, 0, self.pixelwidth, self.pixelheight );
 			c.closePath();
 		}) );
-	
-		for ( var l in this.layers ) {
-			self.stage.add( self.layers[l] );
-		}
 
 		for ( i in BoardPlugins ) {
 			var plugin = BoardPlugins[i];
 			self[ plugin.property ] = plugin.func(self);
 		}
-	
+
 		// a two-dimensional array representing the configuration of tiles
 		// on the board. The element at map[ y ][ x ] must be either a Tile 
 		// object or null.
@@ -244,8 +281,8 @@ function Tile( args ) {
 	this.set_style = function(name, no_redraw ) {
 		this.last_style = this.style;
 		this.style = name;
-		this.parent.layers['tiles'].draw();
-		this.parent.layers['3dtiles'].draw();
+		this.parent.get_layer('tiles').draw();
+		this.parent.get_layer('3dtiles').draw();
 	};
 
 	this.get_screen_coords = function() {
@@ -403,7 +440,7 @@ function Tile( args ) {
 				self.set_style('hidden');
 		});
 
-		b.layers['tiles'].add( self.surface );
+		b.get_layer('tiles').add( self.surface );
 
 		if ( b.is_3d ) {
 			self.shape3d = new Kinetic.Shape( function() {
@@ -448,8 +485,8 @@ function Tile( args ) {
 				c.stroke();
 				c.fill();
 			});
-			b.layers['3dtiles'].add( self.shape3d );
-			b.layers['3dtiles'].draw();
+			b.get_layer('3dtiles').add( self.shape3d );
+			b.get_layer('3dtiles').draw();
 		}
 	}
 

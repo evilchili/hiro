@@ -8,10 +8,12 @@ BoardPlugins.push( { 'property' : 'viewport', 'func' : function(board) {
 	self.y              = 0;
 	self.width          = board.width  || board.pixelwidth;
 	self.height         = board.height || board.pixelheight;
-	self.stepsize       = 10;
-	self.interval       = 25;
+	self.stepsize       = 20;
+	self.interval       = 5;
 	self.hotspot_size   = 20;
 	self._panning       = undefined;
+
+	var ui = board.get_layer('ui');
 
 	var north = new Kinetic.Shape( function() {
 		c = this.getContext();
@@ -23,7 +25,7 @@ BoardPlugins.push( { 'property' : 'viewport', 'func' : function(board) {
 	});
 	north.on( "mousemove.viewport", function() { self.pan({ 'dir' : ['north'] }) });
 	north.on( "mouseout.viewport",  self.stop_panning );
-	board.layers['ui'].add( north );
+	ui.add(north);
 
 	var south = new Kinetic.Shape( function() {
 		c = this.getContext();
@@ -35,7 +37,7 @@ BoardPlugins.push( { 'property' : 'viewport', 'func' : function(board) {
 	});
 	south.on( "mousemove.viewport", function() { self.pan({ 'dir' : ['south'] }) });
 	south.on( "mouseout.viewport",  self.stop_panning );
-	board.layers['ui'].add( south );
+	ui.add( south );
 
 	var east = new Kinetic.Shape( function() {
 		c = this.getContext();
@@ -47,7 +49,7 @@ BoardPlugins.push( { 'property' : 'viewport', 'func' : function(board) {
 	});
 	east.on( "mousemove.viewport", function() { self.pan({ 'dir' : ['east'] }) });
 	east.on( "mouseout.viewport",  self.stop_panning );
-	board.layers['ui'].add( east );
+	ui.add( east );
 
 	var west = new Kinetic.Shape( function() {
 		c = this.getContext();
@@ -59,7 +61,7 @@ BoardPlugins.push( { 'property' : 'viewport', 'func' : function(board) {
 	});
 	west.on( "mousemove.viewport", function() { self.pan({ 'dir' : ['west'] }) });
 	west.on( "mouseout.viewport",  self.stop_panning );
-	board.layers['ui'].add( west );
+	ui.add( west );
 
 	board.stage.on( "mouseout.viewport", self.stop_panning );
 
@@ -100,7 +102,7 @@ BoardPlugins.push( { 'property' : 'viewport', 'func' : function(board) {
 		self.offset = { 'x' : offset_x, 'y' : offset_y };
 		if ( offset_x || offset_y ) {
 			if ( ! self._panning ) {
-				board.layers['tiles'].listen(false);
+				board.get_layer('tiles').listen(false);
 				self._panning = window.setInterval( self.do_panning, self.interval );
 			}
 		} else {
@@ -142,9 +144,7 @@ BoardPlugins.push( { 'property' : 'viewport', 'func' : function(board) {
 			self.x += v.offset.x;
 			self.y += v.offset.y;
 	
-			for ( var l in board.layers ) {
-				board.layers[l].draw();
-			}
+			board.draw_layers();
 		}
 	};
 
@@ -154,9 +154,8 @@ BoardPlugins.push( { 'property' : 'viewport', 'func' : function(board) {
 			window.clearInterval( self._panning );
 			self._panning=undefined;
 		}
-		board.layers['tiles'].listen(true);
+		board.get_layer('tiles').listen(true);
 	};
 
-	board.layers['ui'].draw();
 	return self;
 }});
