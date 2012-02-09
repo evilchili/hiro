@@ -1,0 +1,10 @@
+Hiro v0.1a -- an HTML game engine
+---------------------------------
+
+2D/flat, 2D/isometric and 3D/isometric render modes
+full per-tile event driven model
+per-tile styles (this example shows default, highlight, disabled, hidden)
+height fields with arbitrary heights
+plugin system (this example uses the viewport plugin)
+
+Built on Eric Rowell's KineticJS: http://kineticjs.com
