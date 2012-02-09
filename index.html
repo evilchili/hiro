@@ -1,0 +1,31 @@
+<html>
+	<head>
+		<title>Hiro -- HTML5 game engine</title>
+		<script src="static/js/kinetic-v3.7.2.min.js"></script>
+		<script src="static/js/hiro.js"></script>
+		<script src="static/js/hiro.viewport.js"></script>
+		<script src="static/js/demo.js"></script>
+		<link rel='stylesheet' href='static/css/site.css'>
+	</head>
+	<body>
+		<div id='legend' style='position:relative;'>
+			<div id='header'>Hiro v0.1a</div>
+			<span class='biline'>HTML5 game engine</span>
+			<ul>
+				<li>2D/flat, 2D/isometric and 3D/isometric render modes</li>
+				<li>full per-tile event driven model</li>
+				<li>per-tile styles (this example shows default, highlight, disabled, hidden)</li>
+				<li>height fields with arbitrary heights</li>
+				<li>plugin system (this example uses the viewport plugin)</li>
+				<li>Built on Eric Rowell's <a href="http://kineticjs.com">KineticJS</a></li>
+			</ul>
+		</div>
+		<div id='content'></div>
+		<div id='footer'>
+			&nbsp;author: Greg Boyington (twitter: <a href="http://twitter.com/evilchili">evilchili</a>)
+		</div>
+		<script>
+			draw_3dboard();
+		</script>
+	</body>
+</html>

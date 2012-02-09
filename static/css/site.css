@@ -1,0 +1,23 @@
+body {
+	margin:0;
+	font-family: helvetica, arial, sans-serif;
+	line-height: 1.5em;
+}
+#header {
+	font-size: 2.0em;
+	font-weight: bold;
+}
+.biline {
+	font-weight:bold;
+}
+#legend {
+	margin:0.5em;
+}
+#footer {
+	width:100%;
+	position:absolute;
+	padding: 2px;
+	margin:0;
+	padding-bottom:1.0em;
+	bottom:0;
+}
