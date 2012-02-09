@@ -13,11 +13,6 @@ body {
 #legend {
 	margin:0.5em;
 }
-#footer {
-	width:100%;
-	position:absolute;
-	padding: 2px;
-	margin:0;
-	padding-bottom:1.0em;
-	bottom:0;
+.author {
+	font-size: 0.8em;
 }

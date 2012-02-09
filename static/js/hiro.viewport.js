@@ -21,8 +21,8 @@ BoardPlugins.push( { 'property' : 'viewport', 'func' : function(board) {
 		c.fillRect( 0, 0, self.width, self.hotspot_size );
 		c.closePath();
 	});
-	north.on( "mousemove", function() { self.pan({ 'dir' : ['north'] }) });
-	north.on( "mouseout",  self.stop_panning );
+	north.on( "mousemove.viewport", function() { self.pan({ 'dir' : ['north'] }) });
+	north.on( "mouseout.viewport",  self.stop_panning );
 	board.layers['ui'].add( north );
 
 	var south = new Kinetic.Shape( function() {
@@ -33,8 +33,8 @@ BoardPlugins.push( { 'property' : 'viewport', 'func' : function(board) {
 		c.fillRect( 0, self.height - self.hotspot_size, self.width, self.height );
 		c.closePath();
 	});
-	south.on( "mousemove", function() { self.pan({ 'dir' : ['south'] }) });
-	south.on( "mouseout",  self.stop_panning );
+	south.on( "mousemove.viewport", function() { self.pan({ 'dir' : ['south'] }) });
+	south.on( "mouseout.viewport",  self.stop_panning );
 	board.layers['ui'].add( south );
 
 	var east = new Kinetic.Shape( function() {
@@ -45,8 +45,8 @@ BoardPlugins.push( { 'property' : 'viewport', 'func' : function(board) {
 		c.fillRect( 0, 0, self.hotspot_size, self.height );
 		c.closePath();
 	});
-	east.on( "mousemove", function() { self.pan({ 'dir' : ['east'] }) });
-	east.on( "mouseout",  self.stop_panning );
+	east.on( "mousemove.viewport", function() { self.pan({ 'dir' : ['east'] }) });
+	east.on( "mouseout.viewport",  self.stop_panning );
 	board.layers['ui'].add( east );
 
 	var west = new Kinetic.Shape( function() {
@@ -57,11 +57,11 @@ BoardPlugins.push( { 'property' : 'viewport', 'func' : function(board) {
 		c.fillRect( self.width - self.hotspot_size, 0, self.width, self.height );
 		c.closePath();
 	});
-	west.on( "mousemove", function() { self.pan({ 'dir' : ['west'] }) });
-	west.on( "mouseout",  self.stop_panning );
+	west.on( "mousemove.viewport", function() { self.pan({ 'dir' : ['west'] }) });
+	west.on( "mouseout.viewport",  self.stop_panning );
 	board.layers['ui'].add( west );
 
-	board.stage.on( "mouseout", self.stop_panning );
+	board.stage.on( "mouseout.viewport", self.stop_panning );
 
 	// object is the point containing x/y coords of the center of the tile in screenspace
 	board.add_hook( 'get_screen_coords_end', function(obj) {
