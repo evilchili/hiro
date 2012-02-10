@@ -60,6 +60,7 @@ var Board = function(args) {
 	 *	-- draw every tile on the game board
 	 */
 	self.draw = function() {
+		self.reset_stage();
 		for ( var y=0; y < self.map.length; y++ ) {
 			for ( var x=0; x < self.map[0].length; x++ ) {
 				if ( self.map[y][x] ) {
@@ -190,7 +191,7 @@ var Board = function(args) {
 		self.get_layer_at(0).add( new Kinetic.Shape(function() {
 			c = this.getContext();
 			c.beginPath();
-		   	c.fillStyle = "#8888FF";
+		   	c.fillStyle = "#000022";
 			c.fillRect( 0, 0, self.pixelwidth, self.pixelheight );
 			c.closePath();
 		}) );
@@ -281,8 +282,12 @@ function Tile( args ) {
 	this.set_style = function(name, no_redraw ) {
 		this.last_style = this.style;
 		this.style = name;
+		this.parent.execute_hooks( 'tile_set_style_end', this );
+
 		this.parent.get_layer('tiles').draw();
 		this.parent.get_layer('3dtiles').draw();
+
+		
 	};
 
 	this.get_screen_coords = function() {
@@ -392,7 +397,7 @@ function Tile( args ) {
 			var style = self.parent._style[ self.style ];
 			var c = this.getContext();
 			c.beginPath();
-			
+		
 			// apply the current style for this tile
 			c.fillStyle     = style.fillStyle;
 			c.strokeStyle   = style.strokeStyle;
@@ -424,7 +429,6 @@ function Tile( args ) {
 			c.closePath();
 			c.stroke();
 			c.fill();
-
 		});
 
 		self.surface.on("mouseover", function() {
@@ -488,6 +492,7 @@ function Tile( args ) {
 			b.get_layer('3dtiles').add( self.shape3d );
 			b.get_layer('3dtiles').draw();
 		}
+		b.execute_hooks( 'tile_draw_end', self );
 	}
 
 	return this;	

@@ -8,8 +8,8 @@ BoardPlugins.push( { 'property' : 'viewport', 'func' : function(board) {
 	self.y              = 0;
 	self.width          = board.width  || board.pixelwidth;
 	self.height         = board.height || board.pixelheight;
-	self.stepsize       = 20;
-	self.interval       = 5;
+	self.stepsize       = 30;
+	self.interval       = 25;
 	self.hotspot_size   = 20;
 	self._panning       = undefined;
 
@@ -144,7 +144,10 @@ BoardPlugins.push( { 'property' : 'viewport', 'func' : function(board) {
 			self.x += v.offset.x;
 			self.y += v.offset.y;
 	
-			board.draw_layers();
+			l = board.get_layers();	
+			for ( var i in l ) {
+				l[i].draw();
+			}
 		}
 	};
 
@@ -157,5 +160,6 @@ BoardPlugins.push( { 'property' : 'viewport', 'func' : function(board) {
 		board.get_layer('tiles').listen(true);
 	};
 
+	board.get_layer('ui').listen(true);
 	return self;
 }});
