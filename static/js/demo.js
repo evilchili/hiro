@@ -58,7 +58,7 @@ function draw_3dboard() {
 	}).init();
 
 	// by default the board is all dark
-	board.default_brightness = 0;
+	board.default_brightness = 0.2;
 
 	// add some tile styles
 	board.add_style( 'default', { 
@@ -93,11 +93,11 @@ function draw_3dboard() {
 
 	// add a light
 	board.add_light({ 
-		'x'          : 2, 
-		'y'          : 2, 
-		'brightness' : 1,
+		'x'          : 3, 
+		'y'          : 1, 
+		'brightness' : 0.85,
 		'falloff'    : 0.5,
-		'color'      : '#FFF',
+		'color'      : '#FFFACD',
 		'height'     : 2,
 	});
 

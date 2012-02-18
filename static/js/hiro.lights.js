@@ -38,6 +38,7 @@ BoardPlugins.push( { 'property' : 'lights', 'func' : function(board) {
 			tile.light = { 
 				brightness : tile.parent.default_brightness,
 				color      : '#000000',
+				alpha      : 1 - tile.parent.default_brightness,
 			}
 		}
 		return tile;
@@ -50,7 +51,7 @@ BoardPlugins.push( { 'property' : 'lights', 'func' : function(board) {
 		light_layer.add( new Kinetic.Shape( function() {
 			c = this.getContext();
 			c.beginPath();
-			c.globalAlpha = tile.light.brightness ? 0.5 : 1;
+			c.globalAlpha = tile.light.alpha || ( tile.light.brightness ? 0.5 : 1 );
 
 			c.fillStyle = tile.light.color;
 			c.moveTo( p.w.x,  p.w.y  );

@@ -383,18 +383,33 @@ function Tile( args ) {
 			'SE' : null,
 			'SW' : null,
 		}
-		if ( this.y > 0 && this.x < b.cols ) {
-			n['NE'] = b.map[ ( this.y % 2 ) ? this.y : this.y - 1 ][ this.x + 1 ];
+
+		var is_offset = this.x % 2;
+
+		y = is_offset ? this.y : this.y - 1;
+		x = this.x + 1;
+		if ( y >= 0 && x < b.cols ) {
+			n['NE'] = b.map[ y ][ x ];
 		}
-		if ( this.x < b.cols ) {
-			n['SE'] = b.map[ ( this.y % 2 ) ? this.y + 1 : this.y ][ this.x + 1 ];
+
+		y = is_offset ? this.y + 1 : this.y;
+		x = this.x + 1;
+		if ( x < b.cols && y < b.rows ) {
+			n['SE'] = b.map[ y ][ x ];
 		}
-		if ( this.x > 0 ) {
-			n['NW'] = b.map[ ( this.y % 2 ) ? this.y : this.y - 1 ][ this.x - 1 ];
+
+		y = is_offset ? this.y : this.y - 1;
+		x = this.x - 1;
+		if ( x >= 0 && y >= 0 ) {
+			n['NW'] = b.map[ y ][ x ];
 		}
-		if ( this.y < b.rows && this.x > 0 ) {
-			n['SW'] = b.map[ ( this.y % 2 ) ? this.y + 1 : this.y ][ this.x - 1 ];
+
+		y = is_offset ? this.y + 1 : this.y;
+		x = this.x - 1;
+		if ( x >= 0 && y < b.rows ) {
+			n['SW'] = b.map[ y ][ x ];
 		}
+
 		return n;
 	};
 
