@@ -14,7 +14,7 @@ BoardPlugins.push( { 'property' : 'lights', 'func' : function(board) {
 			t.light = args;
 	
 			// apply the brightness to the color
-			t.light.color = ColorLuminance( t.light.color, -1 * ( 1 - t.light.brightness ) );
+			t.light.color = darken( t.light.color, 1 - t.light.brightness );
 
 			if ( args.falloff > 0 ) {
 				tiles = t.neighbours();
@@ -22,7 +22,7 @@ BoardPlugins.push( { 'property' : 'lights', 'func' : function(board) {
 					if ( tiles[i] ) {
 						tiles[i].light = { 
 							brightness : args.brightness,
-							color      : ColorLuminance( args.color, -1 * args.falloff ),
+							color      : darken( args.color, args.falloff ),
 						};
 					}
 				}
@@ -69,6 +69,16 @@ BoardPlugins.push( { 'property' : 'lights', 'func' : function(board) {
 } } );
 
 
+function darken( hex, lum ) {
+	return ColorLuminance( hex, -1 * lum );
+}
+
+function lighten( hex, lum ) {
+	return ColorLuminance( hex,lum );
+}
+
+// source: http://www.sitepoint.com/javascript-generate-lighter-darker-color/
+//
 // return lighter (+lum) or darker (-lum) color as a hex string
 // pass original hex string and luminosity factor, e.g. -0.1 = 10% darker
 function ColorLuminance(hex, lum) {

@@ -84,7 +84,7 @@ function draw_3dboard() {
 	});
 
 	board.add_style( 'highlight', {
-		fillStyle         : '#FFF',
+		fillStyle         : 'red',
 		side_fillStyle    : '#888',
 		side_fillStyle2   : '#333',
 		side_strokeStyle  : '#333',
