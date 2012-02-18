@@ -1,11 +1,6 @@
 BoardPlugins.push( { 'property' : 'lights', 'func' : function(board) {
 	var self = this;
 
-	pos = board.get_layer_position('ui');
-	light_layer = board.add_layer('lights', pos );
-	light_layer.listen(false);
-	board.reset_stage();
-
 	board.add_light = function( args ) {
 
 		if ( args.x < board.cols && args.y < board.rows ) {
@@ -48,7 +43,7 @@ BoardPlugins.push( { 'property' : 'lights', 'func' : function(board) {
 		if ( ! tile.light ) return;
 		var p = tile.get_screen_coords();
 
-		light_layer.add( new Kinetic.Shape( function() {
+		board.get_layer('tiles').add( new Kinetic.Shape( function() {
 			c = this.getContext();
 			c.beginPath();
 			c.globalAlpha = tile.light.alpha || ( tile.light.brightness ? 0.5 : 1 );
@@ -63,7 +58,7 @@ BoardPlugins.push( { 'property' : 'lights', 'func' : function(board) {
 			c.closePath();
 			c.fill();
 		}) );
-		light_layer.draw();
+		board.get_layer('tiles').draw();
 	});
 
 } } );
