@@ -57,13 +57,16 @@ function draw_3dboard() {
 		tile_height : 15,	
 	}).init();
 
+	// by default the board is all dark
+	board.default_brightness = 0;
+
 	// add some tile styles
 	board.add_style( 'default', { 
-		fillStyle         : '#333', 
-		strokeStyle       : '#111',
-		side_fillStyle    : '#222',
-		side_fillStyle2   : '#111',
-		side_strokeStyle  : '#111',
+		fillStyle         : '#DDD', 
+		strokeStyle       : '#000',
+		side_fillStyle    : '#888',
+		side_fillStyle2   : '#333',
+		side_strokeStyle  : '#333',
 	});
 
 	board.add_style( 'disabled', { 
@@ -81,24 +84,24 @@ function draw_3dboard() {
 	});
 
 	board.add_style( 'highlight', {
-		fillStyle         : '#DDD',
-		side_fillStyle    : '#777',
-		side_fillStyle2   : '#555',
-		side_strokeStyle  : '#AAA',
+		fillStyle         : '#FFF',
+		side_fillStyle    : '#888',
+		side_fillStyle2   : '#333',
+		side_strokeStyle  : '#333',
 		side_lineWidth    : 1,
 	});
-
-	board.draw();
 
 	// add a light
 	board.add_light({ 
 		'x'          : 2, 
 		'y'          : 2, 
-		'brightness' : 0.85,
-		'falloff'    : 1, 
-		'color'      : '#FFFACD',
+		'brightness' : 1,
+		'falloff'    : 0.5,
+		'color'      : '#FFF',
 		'height'     : 2,
 	});
+
+	board.draw();
 
 	// disable a tile
 	board.map[3][3].set_style('disabled');

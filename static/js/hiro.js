@@ -191,7 +191,7 @@ var Board = function(args) {
 		self.get_layer_at(0).add( new Kinetic.Shape(function() {
 			c = this.getContext();
 			c.beginPath();
-		   	c.fillStyle = "#000022";
+		   	c.fillStyle = "#8888FF";
 			c.fillRect( 0, 0, self.pixelwidth, self.pixelheight );
 			c.closePath();
 		}) );
@@ -375,14 +375,27 @@ function Tile( args ) {
 	this.neighbours = function() {
 		var b = this.parent;
 		var n = []
-		return { 
-			'N'  : this.y > 0                    ? b.map[ this.y - 1 ][ this.x     ] : null,
-			'S'  : this.y < b.rows               ? b.map[ this.y + 1 ][ this.x     ] : null,
-			'NE' : this.y > 0 && this.x < b.cols ? b.map[ this.y - 1 ][ this.x + 1 ] : null,
-			'SE' : this.x < b.cols               ? b.map[ this.y     ][ this.x + 1 ] : null,
-			'SW' : this.y < b.rows && this.x > 0 ? b.map[ this.y     ][ this.x - 1 ] : null,
-			'NW' : this.x > 0                    ? b.map[ this.y - 1 ][ this.x - 1 ] : null,
-		};
+		n = {
+			'N'  : this.y > 0      ? b.map[ this.y - 1 ][ this.x ] : null,
+			'S'  : this.y < b.rows ? b.map[ this.y + 1 ][ this.x ] : null,
+			'NE' : null,
+			'NW' : null,
+			'SE' : null,
+			'SW' : null,
+		}
+		if ( this.y > 0 && this.x < b.cols ) {
+			n['NE'] = b.map[ ( this.y % 2 ) ? this.y : this.y - 1 ][ this.x + 1 ];
+		}
+		if ( this.x < b.cols ) {
+			n['SE'] = b.map[ ( this.y % 2 ) ? this.y + 1 : this.y ][ this.x + 1 ];
+		}
+		if ( this.x > 0 ) {
+			n['NW'] = b.map[ ( this.y % 2 ) ? this.y : this.y - 1 ][ this.x - 1 ];
+		}
+		if ( this.y < b.rows && this.x > 0 ) {
+			n['SW'] = b.map[ ( this.y % 2 ) ? this.y + 1 : this.y ][ this.x - 1 ];
+		}
+		return n;
 	};
 
 	// (re)draw this tile
@@ -392,6 +405,8 @@ function Tile( args ) {
 		}
 		var b = this.parent;
 		var self = this;
+
+		self = b.execute_hooks( 'new_tile_start', self );
 
 		self.surface = new Kinetic.Shape( function() {
 			var style = self.parent._style[ self.style ];
