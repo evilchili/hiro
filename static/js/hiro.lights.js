@@ -1,7 +1,9 @@
 BoardPlugins.push( { 'property' : 'lights', 'func' : function(board) {
 	var self = this;
 
-	board.add_light = function( args ) {
+	self.default_brightness = 0.1;
+
+	self.add_light = function( args ) {
 
 		if ( args.x < board.cols && args.y < board.rows ) {
 			t = board.map[ args.y ][ args.x ];
@@ -31,9 +33,9 @@ BoardPlugins.push( { 'property' : 'lights', 'func' : function(board) {
 	board.add_hook( 'new_tile_start', function(tile) {
 		if ( tile.light == undefined ) {
 			tile.light = { 
-				brightness : tile.parent.default_brightness,
+				brightness : self.default_brightness,
 				color      : '#000000',
-				alpha      : 1 - tile.parent.default_brightness,
+				alpha      : 1 - self.default_brightness,
 			}
 		}
 		return tile;
@@ -59,6 +61,7 @@ BoardPlugins.push( { 'property' : 'lights', 'func' : function(board) {
 		c.fill();
 
 	});
+	return self;
 
 }});
 

@@ -57,9 +57,6 @@ function draw_3dboard() {
 		tile_height : 15,	
 	}).init();
 
-	// by default the board is all dark
-	board.default_brightness = 0.1;
-
 	// add some tile styles
 	board.add_style( 'default', { 
 		fillStyle         : '#AAA', 
@@ -91,15 +88,20 @@ function draw_3dboard() {
 		side_lineWidth    : 1,
 	});
 
-	// add a light
-	board.add_light({ 
-		'x'          : 3, 
-		'y'          : 1, 
-		'brightness' : 0.75,
-		'falloff'    : 0.9,
-		'color'      : '#FFFACD',
-		'height'     : 2,
-	});
+	if ( board.lights )
+
+		// by default every tile is dark
+		board.lights.default_brightness = 0.1;
+
+		// add a light
+		board.lights.add_light({ 
+			'x'          : 3, 
+			'y'          : 1, 
+			'brightness' : 0.75,
+			'falloff'    : 0.9,
+			'color'      : '#FFFACD',
+			'height'     : 2,
+		});
 
 	board.draw();
 
