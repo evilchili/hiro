@@ -58,11 +58,11 @@ function draw_3dboard() {
 	}).init();
 
 	// by default the board is all dark
-	board.default_brightness = 0.2;
+	board.default_brightness = 0.1;
 
 	// add some tile styles
 	board.add_style( 'default', { 
-		fillStyle         : '#DDD', 
+		fillStyle         : '#AAA', 
 		strokeStyle       : '#000',
 		side_fillStyle    : '#888',
 		side_fillStyle2   : '#333',
@@ -95,8 +95,8 @@ function draw_3dboard() {
 	board.add_light({ 
 		'x'          : 3, 
 		'y'          : 1, 
-		'brightness' : 0.85,
-		'falloff'    : 0.5,
+		'brightness' : 0.75,
+		'falloff'    : 0.9,
 		'color'      : '#FFFACD',
 		'height'     : 2,
 	});
@@ -104,7 +104,7 @@ function draw_3dboard() {
 	board.draw();
 
 	// disable a tile
-	board.map[3][3].set_style('disabled');
+	//board.map[3][3].set_style('disabled');
 
 	return board;
 }

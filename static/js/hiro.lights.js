@@ -39,29 +39,28 @@ BoardPlugins.push( { 'property' : 'lights', 'func' : function(board) {
 		return tile;
 	});
 
-	board.add_hook( 'tile_draw_end', function(tile) {
-		if ( ! tile.light ) return;
-		var p = tile.get_screen_coords();
+	board.add_hook( 'tile_draw_surface_end', function( args ) {
 
-		board.get_layer('tiles').add( new Kinetic.Shape( function() {
-			c = this.getContext();
-			c.beginPath();
-			c.globalAlpha = tile.light.alpha || ( tile.light.brightness ? 0.5 : 1 );
+		p = args.point;
+		c = args.context;
+		t = args.tile;
 
-			c.fillStyle = tile.light.color;
-			c.moveTo( p.w.x,  p.w.y  );
-			c.lineTo( p.nw.x, p.nw.y ); 
-			c.lineTo( p.ne.x, p.ne.y ); 
-			c.lineTo( p.e.x,  p.e.y  ); 
-			c.lineTo( p.se.x, p.se.y ); 
-			c.lineTo( p.sw.x, p.sw.y  ); 
-			c.closePath();
-			c.fill();
-		}) );
-		board.get_layer('tiles').draw();
+		c.beginPath();
+		c.globalAlpha = t.light.alpha || ( t.light.brightness ? 0.5 : 1 );
+
+		c.fillStyle = t.light.color;
+		c.moveTo( p.w.x,  p.w.y  );
+		c.lineTo( p.nw.x, p.nw.y ); 
+		c.lineTo( p.ne.x, p.ne.y ); 
+		c.lineTo( p.e.x,  p.e.y  ); 
+		c.lineTo( p.se.x, p.se.y ); 
+		c.lineTo( p.sw.x, p.sw.y  ); 
+		c.closePath();
+		c.fill();
+
 	});
 
-} } );
+}});
 
 
 function darken( hex, lum ) {

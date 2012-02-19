@@ -191,7 +191,7 @@ var Board = function(args) {
 		self.get_layer_at(0).add( new Kinetic.Shape(function() {
 			c = this.getContext();
 			c.beginPath();
-		   	c.fillStyle = "#8888FF";
+		   	c.fillStyle = "#444466";
 			c.fillRect( 0, 0, self.pixelwidth, self.pixelheight );
 			c.closePath();
 		}) );
@@ -459,6 +459,14 @@ function Tile( args ) {
 			c.closePath();
 			c.stroke();
 			c.fill();
+
+			
+			b.execute_hooks( 'tile_draw_surface_end', { 
+				'context' : c, 
+				'point'   : p, 
+				'tile'    : self 
+			});
+
 		});
 
 		self.surface.on("mouseover", function() {
@@ -522,7 +530,10 @@ function Tile( args ) {
 			b.get_layer('3dtiles').add( self.shape3d );
 			b.get_layer('3dtiles').draw();
 		}
+
 		b.execute_hooks( 'tile_draw_end', self );
+		b.get_layer('tiles').draw();
+
 	}
 
 	return this;	
