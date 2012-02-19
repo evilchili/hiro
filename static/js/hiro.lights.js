@@ -50,7 +50,7 @@ BoardPlugins.push( { 'property' : 'lights', 'func' : function(board) {
 		c.beginPath();
 		c.globalAlpha = t.light.alpha || ( t.light.brightness ? 0.5 : 1 );
 
-		c.fillStyle = t.light.color;
+		c.fillStyle = t.style =='hidden' ? t.style.fillStyle : t.light.color;
 		c.moveTo( p.w.x,  p.w.y  );
 		c.lineTo( p.nw.x, p.nw.y ); 
 		c.lineTo( p.ne.x, p.ne.y ); 

@@ -41,19 +41,23 @@ function draw_3dboard() {
 	document.querySelector('#content').appendChild(b);
 	var board = new Board({ 
 		map : [
+
 			[ 4, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0 ],
 			[ 3, 2, 1, 1, 1, 0, 0, 0, 1, 1, 0 ],
 			[ 3, 2, 1, 1, 1, 2, 1, 2, 1, 1, 0 ],
-			[ 3, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0 ],
+			[ 3, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 ],
+			[ 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 ],
+			[ 3, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0 ],
 			[ 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1 ],
+
 		], 
 		id    	  : 'board3d', 
 		isometric : true, 
 		is_3d     : true,
 		radius    : 40,
-		padding   : 50,
-		width     : 500,
-		height    : 350,
+		padding   : 100,
+		width     : 600,
+		height    : 500,
 		tile_height : 15,	
 	}).init();
 
