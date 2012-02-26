@@ -153,8 +153,8 @@ var Board = function(args) {
 		self.pixelheight = 0; 
 	
 		if ( self.isometric ) {
-			self.pixelwidth = ( args.map[0].length - 1 ) * ( 3 * self._tile.radius / 2 );
-			self.pixelheight =  args.map.length * ( 3 * self._tile.radius / 2 );
+			self.pixelwidth = ( args.map[0].length ) * ( 3 * self._tile.radius / 2 );
+			self.pixelheight =  ( args.map.length - 1 ) * ( 3 * self._tile.radius / 2 ) + self._tile.height / 4;
 		} else {
 			self.pixelwidth = args.map[0].length * ( 3 * self._tile.radius / 2 );
 			self.pixelheight = self._tile.radius + ( args.map.length - 1 ) * self._tile.width;
@@ -181,7 +181,7 @@ var Board = function(args) {
 		});
 
 		// set up the KineticJS stage
-		self.stage  = new Kinetic.Stage( self.id, ( self.width || self.parent.pixelwidth ), ( self.height || self.parent.pixelheight ) );
+		self.stage  = new Kinetic.Stage( self.id, ( self.width || self.pixelwidth ), ( self.height || self.pixelheight ) );
 	
 		self.add_layer('background').listen(false);
 		self.add_layer('3dtiles').listen(false);
@@ -330,6 +330,8 @@ function Tile( args ) {
 			// add the canvas padding
 			this.x += self.parent.padding;
 			this.y += self.parent.padding;
+
+			this.x += self.parent._tile.width;
 
 			// apply the heigh-field calculation.  self.z-1 means no
 			// vertical offset for tiles of height=1.

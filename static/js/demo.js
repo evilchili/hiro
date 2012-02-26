@@ -55,9 +55,9 @@ function draw_3dboard() {
 		isometric : true, 
 		is_3d     : true,
 		radius    : 40,
-		padding   : 100,
-		width     : 600,
-		height    : 500,
+		padding   : 20,
+		width     : 500,
+		height    : 350,
 		tile_height : 15,	
 	}).init();
 
