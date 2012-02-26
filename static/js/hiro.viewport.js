@@ -4,6 +4,13 @@
 BoardPlugins.push( { 'property' : 'viewport', 'func' : function(board) {
 	var self = this;
 
+	// If the board was not created with specific dimensions, it will 
+	// be sized automatically according to the map, meaning 100% of 
+	// the map will always be visible -- thus no viewport is needed.
+	//
+	if ( board.width == undefined && board.height == undefined ) 
+		return self;
+
 	self.x              = 0;
 	self.y              = 0;
 	self.width          = board.width  || board.pixelwidth;

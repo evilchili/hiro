@@ -56,8 +56,8 @@ function draw_3dboard() {
 		is_3d     : true,
 		radius    : 40,
 		padding   : 20,
-		width     : 500,
-		height    : 350,
+		//width     : 500,
+		//height    : 350,
 		tile_height : 15,	
 	}).init();
 
