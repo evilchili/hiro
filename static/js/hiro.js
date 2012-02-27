@@ -153,8 +153,18 @@ var Board = function(args) {
 		self.pixelheight = 0; 
 	
 		if ( self.isometric ) {
-			self.pixelwidth = ( args.map[0].length ) * ( 3 * self._tile.radius / 2 );
-			self.pixelheight =  ( args.map.length - 1 ) * ( 3 * self._tile.radius / 2 ) + self._tile.height / 4;
+
+			// pixelwidth is the width of the map, calculated from the first 
+			// tile in the bottom row to the last tile of the top row.
+			self.pixelwidth  = args.map[0].length * ( self._tile.length / 2 ) * 3 / 2 + ( args.map.length * self._tile.length/2 - self._tile.radius/2 );
+
+			// pixelheight is the height of the map ( rows * height ) plus 
+			// the "3d height" of a tile.  We add 2 * draw_height because we 
+			// need to draw the sides of the bottom-most row, and we need space
+			// to draw something on top of the top-most row	
+			self.pixelheight = (  args.map.length * self._tile.height ) + self._tile.height / 2 + ( self._tile.draw_height * 2 );
+
+
 		} else {
 			self.pixelwidth = args.map[0].length * ( 3 * self._tile.radius / 2 );
 			self.pixelheight = self._tile.radius + ( args.map.length - 1 ) * self._tile.width;
@@ -258,9 +268,8 @@ function Tile( args ) {
 		this.center = { 
 			// distance between center points of adjacent tiles is 3/2 * radius, because 
 			// alternating tiles are translated along the Y axis so the northeast/northwest 
-			// faces align with their neighbours.  We use ( this.x - 1 ) because we want to 
-			// treat the x-coordinate as base 0.
-			x : ( this.x - 1 ) * this.parent._tile.radius * 3/2,
+			// faces align with their neighbours.
+			x : ( this.x ) * this.parent._tile.radius * 3/2,
 		
 			// The y coordinate is + 1 so that there's always room to draw something on 
 			// the tile.  "length" is the long-side of the forshortened hexagon in 
@@ -308,9 +317,8 @@ function Tile( args ) {
 				this.x = t.length + x * cos_a - y * sin_a;
 				this.y = t.length + x * sin_a + y * cos_a;
 	
-				// translate the x coordinate to the right so everything
-				// is visible on the canvas element
-				this.x = this.x - ( t.length / 2 ) + ( t.radius * ( self.parent.cols - 1 ) ) /2;
+				// translate the x coordinate to the right one radius * this tile's row.
+				this.x = this.x + ( ( self.parent.rows ) * t.length/2 );
 
 				// translate the tiles to the same isometric plane
 				if ( t.sides == 4 ) {
@@ -331,11 +339,11 @@ function Tile( args ) {
 			this.x += self.parent.padding;
 			this.y += self.parent.padding;
 
-			this.x += self.parent._tile.width;
+			this.y += self.parent._tile.draw_height;
 
 			// apply the heigh-field calculation.  self.z-1 means no
 			// vertical offset for tiles of height=1.
-			this.y -= ( self.z - 1 ) * self.parent._tile.height / 2;
+			this.y -= self.z * self.parent._tile.width + self.parent._tile.height / 4;
 
 			var obj = self.parent.execute_hooks( 'get_screen_coords_end', this );
 			return obj;
