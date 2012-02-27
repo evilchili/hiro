@@ -147,7 +147,7 @@ var Board = function(args) {
 		}
 
 		if ( self.is_3d ) {
-			self._tile.draw_height = self.tile_height || self._tile.radius;
+			self._tile.height_3d = self.tile_height || self._tile.radius;
 		}
 	
 		self.pixelheight = 0; 
@@ -159,10 +159,10 @@ var Board = function(args) {
 			self.pixelwidth  = args.map[0].length * ( self._tile.length / 2 ) * 3 / 2 + ( args.map.length * self._tile.length/2 - self._tile.radius/2 );
 
 			// pixelheight is the height of the map ( rows * height ) plus 
-			// the "3d height" of a tile.  We add 2 * draw_height because we 
-			// need to draw the sides of the bottom-most row, and we need space
-			// to draw something on top of the top-most row	
-			self.pixelheight = (  args.map.length * self._tile.height ) + self._tile.height / 2 + ( self._tile.draw_height * 2 );
+			// the "3d height" of a tile ( height_3d).  We add 2 * height_3d 
+			// because we need to draw the sides of the bottom-most row, and we 
+			// need space to draw something on top of the top-most row	
+			self.pixelheight = (  args.map.length * self._tile.height ) + self._tile.height / 2 + ( self._tile.height_3d * 2 );
 
 
 		} else {
@@ -339,11 +339,11 @@ function Tile( args ) {
 			this.x += self.parent.padding;
 			this.y += self.parent.padding;
 
-			this.y += self.parent._tile.draw_height;
+			this.y += self.parent._tile.height_3d;
 
 			// apply the height-field calculation.  self.z-1 means no
 			// vertical offset for tiles of height=1.
-			this.y -= self.z * self.parent._tile.draw_height + self.parent._tile.height / 4;
+			this.y -= self.z * self.parent._tile.height_3d + self.parent._tile.height / 4;
 
 			var obj = self.parent.execute_hooks( 'get_screen_coords_end', this );
 			return obj;
@@ -506,7 +506,7 @@ function Tile( args ) {
 				c.lineWidth     = style.side_lineWidth;
 				c.globalAlpha   = style.side_globalAlpha;
 
-				h = self.z * b._tile.draw_height;
+				h = self.z * b._tile.height_3d;
 
 				var p = self.get_screen_coords();
 				c.beginPath();
