@@ -274,7 +274,7 @@ function Tile( args ) {
 			// The y coordinate is + 1 so that there's always room to draw something on 
 			// the tile.  "length" is the long-side of the forshortened hexagon in 
 			// isometric view, or the length of any side in top-down 2d.
-			y : ( this.y + 1 ) * this.parent._tile.length,
+			y : ( this.y ) * this.parent._tile.length,
 		};
 
 		// translate alternating tiles along the Y axis so the hex grid lines up.
@@ -318,7 +318,7 @@ function Tile( args ) {
 				this.y = t.length + x * sin_a + y * cos_a;
 	
 				// translate the x coordinate to the right one radius * this tile's row.
-				this.x = this.x + ( ( self.parent.rows ) * t.length/2 );
+				this.x = this.x + ( ( self.parent.rows - 1 ) * t.length/2 );
 
 				// translate the tiles to the same isometric plane
 				if ( t.sides == 4 ) {
@@ -341,9 +341,9 @@ function Tile( args ) {
 
 			this.y += self.parent._tile.draw_height;
 
-			// apply the heigh-field calculation.  self.z-1 means no
+			// apply the height-field calculation.  self.z-1 means no
 			// vertical offset for tiles of height=1.
-			this.y -= self.z * self.parent._tile.width + self.parent._tile.height / 4;
+			this.y -= self.z * self.parent._tile.draw_height + self.parent._tile.height / 4;
 
 			var obj = self.parent.execute_hooks( 'get_screen_coords_end', this );
 			return obj;
