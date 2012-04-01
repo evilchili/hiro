@@ -151,18 +151,29 @@ var Board = function(args) {
 		}
 	
 		self.pixelheight = 0; 
+
+		self.height_offset = 0;
+		for ( var y in args.map ) {
+			for ( var x in args.map[y] ) {
+				h = args.map[y][x] - y;
+				if ( self.height_offset < h ) 
+					self.height_offset = h;
+			}
+		}
 	
 		if ( self.isometric ) {
 
 			// pixelwidth is the width of the map, calculated from the first 
 			// tile in the bottom row to the last tile of the top row.
-			self.pixelwidth  = args.map[0].length * ( self._tile.length / 2 ) * 3 / 2 + ( args.map.length * self._tile.length/2 - self._tile.radius/2 );
+			self.pixelwidth  = ( args.map[0].length * ( self._tile.length / 2 ) * 3 / 2 ) + 
+							   ( args.map.length * self._tile.length/2 - self._tile.radius/2 );
 
 			// pixelheight is the height of the map ( rows * height ) plus 
 			// the "3d height" of a tile ( height_3d).  We add 2 * height_3d 
 			// because we need to draw the sides of the bottom-most row, and we 
 			// need space to draw something on top of the top-most row	
-			self.pixelheight = (  args.map.length * self._tile.height ) + self._tile.height / 2 + ( self._tile.height_3d * 2 );
+			self.pixelheight = ( ( args.map.length + self.height_offset ) * self._tile.height ) + 
+							   ( self._tile.height / 2 + ( self._tile.height_3d * 2 ) );
 
 
 		} else {
@@ -269,12 +280,11 @@ function Tile( args ) {
 			// distance between center points of adjacent tiles is 3/2 * radius, because 
 			// alternating tiles are translated along the Y axis so the northeast/northwest 
 			// faces align with their neighbours.
-			x : ( this.x ) * this.parent._tile.radius * 3/2,
+			x : this.x * this.parent._tile.radius * 3/2,
 		
-			// The y coordinate is + 1 so that there's always room to draw something on 
-			// the tile.  "length" is the long-side of the forshortened hexagon in 
+			// "length" is the long-side of the forshortened hexagon in 
 			// isometric view, or the length of any side in top-down 2d.
-			y : ( this.y ) * this.parent._tile.length,
+			y : this.y * this.parent._tile.length,
 		};
 
 		// translate alternating tiles along the Y axis so the hex grid lines up.
@@ -479,6 +489,7 @@ function Tile( args ) {
 
 		});
 
+/*
 		self.surface.on("mouseover", function() {
 			if ( self.style != 'hidden' && self.style != 'disabled' )
 				self.set_style('highlight');
@@ -491,7 +502,7 @@ function Tile( args ) {
 			if ( self.style != 'hidden' && self.style != 'disabled' )
 				self.set_style('hidden');
 		});
-
+*/
 		b.get_layer('tiles').add( self.surface );
 
 		if ( b.is_3d ) {
