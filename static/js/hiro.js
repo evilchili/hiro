@@ -61,13 +61,182 @@ var Board = function(args) {
 	 */
 	self.draw = function() {
 		self.reset_stage();
-		for ( var y=0; y < self.map.length; y++ ) {
-			for ( var x=0; x < self.map[0].length; x++ ) {
-				if ( self.map[y][x] ) {
-					self.map[y][x].draw();
+
+		var surface = new Kinetic.Shape( function() {
+			var c = this.getContext();
+			for ( var y=0; y < self.map.length; y++ ) {
+				for ( var x=0; x < self.map[0].length; x++ ) {
+					var t = self.map[y][x];
+					if ( ! t ) continue;
+
+					t = self.execute_hooks( 'new_tile_start', t );
+
+					var style = self._style[ t.style ];
+
+					c.beginPath();
+
+					// apply the current style for this tile
+					c.fillStyle     = style.fillStyle;
+					c.strokeStyle   = style.strokeStyle;
+					c.lineWidth     = style.lineWidth;
+					c.globalAlpha   = style.globalAlpha;
+					c.shadowColor   = style.shadowColor;
+					c.shadowOffsetX = style.shadowOffsetX;
+					c.shadowOffsetY = style.shadowOffsetY;
+					c.shadowBlur    = style.shadowBlur;
+		
+					// draw the tile.
+					var v = t.vertices();
+		
+					c.moveTo( v[0].x, v[0].y );
+					for ( var i=1; i <v.length; i++ ) {
+						c.lineTo( v[i].x, v[i].y );
+					}
+
+					c.closePath();
+					c.stroke();
+					c.fill();
+
+					self.execute_hooks( 'tile_draw_surface_end', { 
+						'context' : c, 
+						'point'   : v, 
+						'tile'    : t, 
+					});
 				}
 			}
+		});
+		if ( self.is_3d ) {
+			var sides3d = new Kinetic.Shape( function() {
+				var c = this.getContext();
+				for ( var y=0; y < self.map.length; y++ ) {
+					for ( var x=0; x < self.map[0].length; x++ ) {
+						var t = self.map[y][x];
+						if ( ! t ) continue; 
+						var style = self._style[ t.style ];
+
+						c.beginPath();
+		
+						// apply the current style for this tile
+						c.fillStyle     = style.side_fillStyle;
+						c.strokeStyle   = style.side_strokeStyle;
+						c.lineWidth     = style.side_lineWidth;
+						c.globalAlpha   = style.side_globalAlpha;
+		
+						h = t.z * self._tile.height_3d;
+		
+						var v = t.vertices();
+						c.beginPath();
+						c.moveTo( v[5].x, v[5].y );
+						c.lineTo( v[5].x, v[5].y + h );
+						c.lineTo( v[4].x, v[4].y + h );
+						c.lineTo( v[4].x, v[4].y );
+						c.lineTo( v[5].x, v[5].y );
+						c.stroke();
+						c.fill()
+			
+						c.beginPath();
+						c.moveTo( v[2].x, v[2].y );
+						c.lineTo( v[2].x, v[2].y + h );
+						c.lineTo( v[3].x, v[3].y + h );
+						c.lineTo( v[3].x, v[3].y );
+						c.lineTo( v[2].x, v[2].y );
+						c.stroke();
+						c.fill()
+			
+						c.fillStyle = style.side_fillStyle2;
+						c.beginPath();
+						c.moveTo( v[4].x, v[4].y );
+						c.lineTo( v[4].x, v[4].y + h );
+						c.lineTo( v[3].x, v[3].y + h );
+						c.lineTo( v[3].x, v[3].y );
+						c.lineTo( v[4].x, v[4].y );
+						c.stroke();
+						c.fill();
+					}
+				}
+			});
 		}
+
+		self.execute_hooks( 'tile_draw_end', self );
+
+		var tile_layer = self.get_layer('tiles');
+		// draw the shapes on the canvas
+		tile_layer.add( surface );
+		tile_layer.draw();
+		if ( self.is_3d ) {
+			var sides_layer = self.get_layer('3dtiles');
+			sides_layer.add( sides3d );
+			sides_layer.draw();
+		}
+
+		// set up event listeners
+		self.stage.on( "mousemove", function(e) {
+			var t = self.fast_tile_at(e);
+			if ( t ) {
+				t.set_style('highlight');
+			}
+
+		});
+		self.stage.on( "mouseout", function(e) {
+			self.reset_tiles();
+		});
+		self.stage.on( "click", function(e) {
+			var t = self.tile_at(e);
+			if ( ! t ) return;
+
+			if ( t.style != 'hidden' && t.style != 'disabled' ) {
+				t.set_style('hidden');
+			}
+		});
+
+	};
+
+	self.reset_tiles = function() {
+		for ( var y=0; y < self.map.length; y++ ) {
+			for ( var x=0; x < self.map[0].length; x++ ) {
+				if ( self.map[y][x] && self.map[y][x].style == 'highlight' ) 
+					self.map[y][x].set_style('default');
+			}
+		}
+	};
+
+/*
+ public void setCellByPoint(int x, int y) {
+        int ci = (int)Math.floor((float)x/(float)SIDE);
+        int cx = x - SIDE*ci;
+
+        int ty = y - (ci % 2) * HEIGHT / 2;
+        int cj = (int)Math.floor((float)ty/(float)HEIGHT);
+        int cy = ty - HEIGHT*cj;
+
+        if (cx > Math.abs(RADIUS / 2 - RADIUS * cy / HEIGHT)) {
+            setCellIndex(ci, cj);
+        } else {
+            setCellIndex(ci - 1, cj + (ci % 2) - ((cy < HEIGHT / 2) ? 1 : 0));
+        }
+    }
+
+*/
+
+	self.fast_tile_at = function(e) {
+		var marginY = self.padding;
+
+		if ( e.clientY < self.padding + self._tile.height ) return null;
+		if ( e.clientX < self.padding ) return null;
+
+		var col = parseInt( e.clientX / ( self._tile.radius * 2 ) );
+
+		return self.map[ 0 ][ col ];
+	}
+	self.tile_at = function( e ) {
+		for ( var y=0; y < self.map.length; y++ ) {
+			for ( var x=0; x < self.map[0].length; x++ ) {
+				if ( ! self.map[y][x] ) continue;
+				if ( self.map[y][x].contains( { 'x' : e.clientX, 'y' : e.clientY } ) )
+					return self.map[y][x];
+			}
+		}
+		return null;
 	};
 
 	self.add_hook = function( name, func ) {
@@ -217,6 +386,7 @@ var Board = function(args) {
 			c.closePath();
 		}) );
 
+
 		for ( i in BoardPlugins ) {
 			var plugin = BoardPlugins[i];
 			self[ plugin.property ] = plugin.func(self);
@@ -309,7 +479,10 @@ function Tile( args ) {
 		
 	};
 
-	this.get_screen_coords = function() {
+	this.vertices = function() {
+
+		if ( this._coords )
+			return this._coords;
 
 		var self = this;
 		var t = self.parent._tile;
@@ -361,34 +534,55 @@ function Tile( args ) {
 
 		if ( t.sides == 6 ) {
 
-			p.nw = new point( c.x - ( r/2 ), c.y - t.length /2 );
-			p.ne = new point( c.x + ( r/2 ), c.y - t.length /2 );
-			p.e  = new point( c.x + r, c.y );
-			p.se = new point( c.x + ( r/2 ), c.y + t.length /2 );
-			p.sw = new point( c.x - ( r/2 ), c.y + t.length /2 );
-			p.w  = new point( c.x - r, c.y );
+			var p = [ 
+				new point( c.x - ( r/2 ), c.y - t.length /2 ),  // nw
+				new point( c.x + ( r/2 ), c.y - t.length /2 ),  // ne
+				new point( c.x + r, c.y ),                      // e
+				new point( c.x + ( r/2 ), c.y + t.length /2 ),  // se
+				new point( c.x - ( r/2 ), c.y + t.length /2 ),  // sw
+				new point( c.x - r, c.y ),                      // w
+			];
 
 			if ( this.parent.isometric ) {
-				p.ne.y = p.ne.y - t.height / 2;
-				p.e.y  = p.e.y  - t.height;
-				p.se.y = p.se.y - t.height;
-				p.sw.y = p.sw.y - t.height / 2;
+				p[1].y = p[1].y - t.height / 2;
+				p[2].y = p[2].y - t.height;
+				p[3].y = p[3].y - t.height;
+				p[4].y = p[4].y - t.height / 2;
 			}
 
 		} else {
 
-			p.nw = new point( c.x - t.width/2, c.y - t.width/2 );
-			p.ne = new point( c.x + t.width/2, c.y - t.width/2 );
-			p.se = new point( c.x + t.width/2, c.y + t.width/2 );
-			p.sw = new point( c.x - t.width/2, c.y + t.width/2 );
+			var p = [
+				new point( c.x - t.width/2, c.y - t.width/2 ), // nw
+				new point( c.x + t.width/2, c.y - t.width/2 ), // ne
+				new point( c.x + t.width/2, c.y + t.width/2 ), // se
+				new point( c.x - t.width/2, c.y + t.width/2 ), // sw
+			];
 
 			if ( this.parent.isometric ) {
-				p.nw.y = p.nw.y + t.width/2;
-				p.se.y = p.se.y - t.width/2;
+				p[0].y = p[0].y + t.width/2;
+				p[2].y = p[2].y - t.width/2;
 			}
-
 		}
-		return p;
+
+		this._coords = p;
+		return p; 
+	};
+
+	this.contains = function( p ) {
+		// adapted from: http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+
+		var v = this.vertices();
+
+		var hit=false;
+		var i=0;
+		var j=0;
+		for ( i=0, j = v.length - 1; i < v.length; j = i++ ) {
+			if ( ( ( v[i].y > p.y ) != ( v[j].y > p.y ) ) &&
+			     ( p.x < ( v[j].x - v[i].x ) * ( p.y - v[i].y ) / ( v[j].y - v[i].y ) + v[i].x ) ) 
+					hit = !hit;
+		}
+		return hit;
 	};
 
 	// return the array indices of this tile's neighbours.
@@ -432,130 +626,6 @@ function Tile( args ) {
 
 		return n;
 	};
-
-	// (re)draw this tile
-	this.draw = function( args ) {
-		if ( ! args ) {
-			args = {}
-		}
-		var b = this.parent;
-		var self = this;
-
-		self = b.execute_hooks( 'new_tile_start', self );
-
-		self.surface = new Kinetic.Shape( function() {
-			var style = self.parent._style[ self.style ];
-			var c = this.getContext();
-			c.beginPath();
-		
-			// apply the current style for this tile
-			c.fillStyle     = style.fillStyle;
-			c.strokeStyle   = style.strokeStyle;
-			c.lineWidth     = style.lineWidth;
-			c.globalAlpha   = style.globalAlpha;
-			c.shadowColor   = style.shadowColor;
-			c.shadowOffsetX = style.shadowOffsetX;
-			c.shadowOffsetY = style.shadowOffsetY;
-			c.shadowBlur    = style.shadowBlur;
-
-			// draw the tile.
-			var p = self.get_screen_coords();
-
-			if ( b._tile.sides == 6 ) {
-				c.moveTo( p.w.x,  p.w.y  );
-				c.lineTo( p.nw.x, p.nw.y ); 
-				c.lineTo( p.ne.x, p.ne.y ); 
-				c.lineTo( p.e.x,  p.e.y  ); 
-				c.lineTo( p.se.x, p.se.y ); 
-				c.lineTo( p.sw.x, p.sw.y  ); 
-			} else {
-				c.moveTo( p.nw.x, p.nw.y  );
-				c.lineTo( p.ne.x, p.ne.y ); 
-				c.lineTo( p.se.x, p.se.y ); 
-				c.lineTo( p.sw.x, p.sw.y ); 
-				c.lineTo( p.nw.x, p.nw.y ); 
-			}
-
-			c.closePath();
-			c.stroke();
-			c.fill();
-
-			
-			b.execute_hooks( 'tile_draw_surface_end', { 
-				'context' : c, 
-				'point'   : p, 
-				'tile'    : self 
-			});
-
-		});
-
-/*
-		self.surface.on("mouseover", function() {
-			if ( self.style != 'hidden' && self.style != 'disabled' )
-				self.set_style('highlight');
-		});
-		self.surface.on("mouseout", function() {
-			if ( self.style != 'hidden' && self.style != 'disabled' )
-				self.set_style( self.last_style );
-		});
-		self.surface.on("click tap", function() {
-			if ( self.style != 'hidden' && self.style != 'disabled' )
-				self.set_style('hidden');
-		});
-*/
-		b.get_layer('tiles').add( self.surface );
-
-		if ( b.is_3d ) {
-			self.shape3d = new Kinetic.Shape( function() {
-				var style = self.parent._style[ self.style ];
-				var c = this.getContext();
-				c.beginPath();
-
-				// apply the current style for this tile
-				c.fillStyle     = style.side_fillStyle;
-				c.strokeStyle   = style.side_strokeStyle;
-				c.lineWidth     = style.side_lineWidth;
-				c.globalAlpha   = style.side_globalAlpha;
-
-				h = self.z * b._tile.height_3d;
-
-				var p = self.get_screen_coords();
-				c.beginPath();
-				c.moveTo( p.w.x, p.w.y );
-				c.lineTo( p.w.x, p.w.y + h );
-				c.lineTo( p.sw.x, p.sw.y + h );
-				c.lineTo( p.sw.x, p.sw.y );
-				c.lineTo( p.w.x, p.w.y );
-				c.stroke();
-				c.fill()
-	
-				c.beginPath();
-				c.moveTo( p.e.x, p.e.y );
-				c.lineTo( p.e.x, p.e.y + h );
-				c.lineTo( p.se.x, p.se.y + h );
-				c.lineTo( p.se.x, p.se.y );
-				c.lineTo( p.e.x, p.e.y );
-				c.stroke();
-				c.fill()
-	
-				c.fillStyle = style.side_fillStyle2;
-				c.beginPath();
-				c.moveTo( p.sw.x, p.sw.y );
-				c.lineTo( p.sw.x, p.sw.y + h );
-				c.lineTo( p.se.x, p.se.y + h );
-				c.lineTo( p.se.x, p.se.y );
-				c.lineTo( p.sw.x, p.sw.y );
-				c.stroke();
-				c.fill();
-			});
-			b.get_layer('3dtiles').add( self.shape3d );
-			b.get_layer('3dtiles').draw();
-		}
-
-		b.execute_hooks( 'tile_draw_end', self );
-		b.get_layer('tiles').draw();
-
-	}
 
 	return this;	
 }
