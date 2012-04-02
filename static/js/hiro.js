@@ -19,6 +19,7 @@ var Board = function(args) {
 	self._layers     = [];
 	self._style      = new Object();
 	self._tile       = new Object();
+	self._cursor     = [];
 	self._hooks      = [];
 
 	/* Board.add_tile()
@@ -171,17 +172,18 @@ var Board = function(args) {
 
 		// set up event listeners
 		self.stage.on( "mousemove", function(e) {
-			var t = self.fast_tile_at(e);
-			if ( t ) {
-				t.set_style('highlight');
-			}
+			var t = self.tile_at(e);
+			if ( t )
+				self.highlight( t );
 
 		});
 		self.stage.on( "mouseout", function(e) {
-			self.reset_tiles();
+			//self.reset_tiles();
 		});
 		self.stage.on( "click", function(e) {
+
 			var t = self.tile_at(e);
+
 			if ( ! t ) return;
 
 			if ( t.style != 'hidden' && t.style != 'disabled' ) {
@@ -189,6 +191,90 @@ var Board = function(args) {
 			}
 		});
 
+	};
+
+	self.make_cursor = function(t) {
+		if ( self.cursor )
+			self.reset_cursor();
+
+		var cur = self._cursor;
+
+		var v1 = t.vertices();
+		var v2 = cur[0][0].vertices;
+		var offset = { 
+			x: v1[0].x - v2[0].x, 
+			y: v1[0].y - v2[0].y
+		};
+		console.log(offset);
+
+		self.cursor = new Kinetic.Shape(function() {
+			var style = self._style[ 'highlight' ];
+
+			c = this.getContext();
+			c.beginPath();
+
+			// apply the highlight style
+			c.fillStyle     = style.fillStyle;
+			c.strokeStyle   = style.strokeStyle;
+			c.lineWidth     = style.lineWidth;
+			c.globalAlpha   = style.globalAlpha;
+			c.shadowColor   = style.shadowColor;
+			c.shadowOffsetX = style.shadowOffsetX;
+			c.shadowOffsetY = style.shadowOffsetY;
+			c.shadowBlur    = style.shadowBlur;
+
+			// draw the cursor tiles.
+			for ( var y in self._cursor ) {
+				for ( var x in self._cursor[y] ) {
+					v = cur[y][x].vertices;
+					if ( cur[y][x].on ) {
+						c.moveTo( v[0].x + offset.x, v[0].y + offset.y );
+						for ( var i=1; i <v.length; i++ ) {
+							c.lineTo( v[i].x + offset.x, v[i].y + offset.y );
+						}
+					} else {
+						c.moveTo( v[ v.length - 1 ].x + offset.x, v[ v.length - 1 ].y + offset.y );
+					}
+				}
+			}
+			c.closePath();
+			c.stroke();
+			c.fill();
+		});
+		self.get_layer('ui').add( self.cursor );
+		self.get_layer('ui').draw();
+		return self.cursor;
+	};
+
+	self.reset_cursor = function() {
+		if ( self.cursor )
+			self.get_layer('ui').remove(self.cursor);
+	};
+
+	self.set_cursor = function( args ) {
+		self._cursor = [];
+		for ( var y in args.map ) {
+			for ( var x in args.map[y] ) {
+	
+				// initialize self row
+				if ( ! self._cursor[y] ) {
+					self._cursor[y] = []
+				}
+		
+				// add a tile, or a null object, at self position
+				var t = new Tile({ 'parent' : self, 'x': x, 'y': y, 'z': 1 });
+				self._cursor[ y ][ x ] = {
+					'on'       : args.map[y][x] ? true : false,
+					'vertices' : t.vertices(),
+				};
+				console.log( y, x, self._cursor[y][x] );
+			}
+		}
+	};
+
+	self.highlight = function( t ) {
+		if ( ! t ) return;
+		self.make_cursor(t);
 	};
 
 	self.reset_tiles = function() {
@@ -200,34 +286,6 @@ var Board = function(args) {
 		}
 	};
 
-/*
- public void setCellByPoint(int x, int y) {
-        int ci = (int)Math.floor((float)x/(float)SIDE);
-        int cx = x - SIDE*ci;
-
-        int ty = y - (ci % 2) * HEIGHT / 2;
-        int cj = (int)Math.floor((float)ty/(float)HEIGHT);
-        int cy = ty - HEIGHT*cj;
-
-        if (cx > Math.abs(RADIUS / 2 - RADIUS * cy / HEIGHT)) {
-            setCellIndex(ci, cj);
-        } else {
-            setCellIndex(ci - 1, cj + (ci % 2) - ((cy < HEIGHT / 2) ? 1 : 0));
-        }
-    }
-
-*/
-
-	self.fast_tile_at = function(e) {
-		var marginY = self.padding;
-
-		if ( e.clientY < self.padding + self._tile.height ) return null;
-		if ( e.clientX < self.padding ) return null;
-
-		var col = parseInt( e.clientX / ( self._tile.radius * 2 ) );
-
-		return self.map[ 0 ][ col ];
-	}
 	self.tile_at = function( e ) {
 		for ( var y=0; y < self.map.length; y++ ) {
 			for ( var x=0; x < self.map[0].length; x++ ) {

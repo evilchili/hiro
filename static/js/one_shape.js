@@ -11,8 +11,6 @@ function draw_3dboard() {
 	document.querySelector('#content').appendChild(b);
 	var board = new Board({ 
 		map : [
-		
-/*
 			[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
 			[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
 			[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
@@ -30,15 +28,12 @@ function draw_3dboard() {
 			[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
 			[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
 			[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
-*/
-			[ 1, 1, 1 ],
-			[ 1, 1, 1 ],
-			[ 1, 1, 1 ],
+//			[ 1, 1, 1 ],
 		],
 		id    	  : 'board3d', 
 		isometric : true, 
 		is_3d     : true,
-		radius    : 40,
+		radius    : 15,
 		padding   : 0,
 		//width     : 500,
 		//height    : 350,
@@ -92,7 +87,16 @@ function draw_3dboard() {
 		});
 	}
 
+	// default cursor is a single tile
+	board.set_cursor( { 
+		map : [ 
+			[ 1 ],
+		] 
+	});
+
 	board.draw();
+
+	board.highlight( board.map[0][0] );
 
 	// disable a tile
 	//board.map[3][3].set_style('disabled');
