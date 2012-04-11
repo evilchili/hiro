@@ -1,18 +1,33 @@
 <html>
 	<head>
 		<title>Hiro -- HTML5 game engine</title>
-		<script src="static/js/kinetic-v3.7.2.js"></script>
+		<script src="static/js/kinetic-v3.9.2.js"></script>
 		<script src="static/js/hiro.js"></script>
 <!--
 		<script src="static/js/hiro.viewport.js"></script>
 		<script src="static/js/hiro.lights.js"></script>
 -->
 		<script src="static/js/one_shape.js"></script>
+		<script src="ext/src/Stats.js"></script>
 		<link rel='stylesheet' href='static/css/site.css'>
 	</head>
 	<body>
 		<div id='content'></div>
 		<script>
+			var stats = new Stats();
+			
+			// Align bottom-left
+			stats.getDomElement().style.position = 'absolute';
+			stats.getDomElement().style.left = '0px';
+			stats.getDomElement().style.bottom = '0px';
+			
+			document.body.appendChild( stats.getDomElement() );
+			
+			setInterval( function () {
+			
+			    stats.update();
+			
+			}, 1000 / 60 );
 			draw_3dboard();
 		</script>
 	</body>

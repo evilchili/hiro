@@ -62,130 +62,131 @@ var Board = function(args) {
 	 */
 	self.draw = function() {
 		self.reset_stage();
-
-		var surface = new Kinetic.Shape( function() {
-			var c = this.getContext();
-			for ( var y=0; y < self.map.length; y++ ) {
-				for ( var x=0; x < self.map[0].length; x++ ) {
-					var t = self.map[y][x];
-					if ( ! t ) continue;
-
-					t = self.execute_hooks( 'new_tile_start', t );
-
-					var style = self._style[ t.style ];
-
-					c.beginPath();
-
-					// apply the current style for this tile
-					c.fillStyle     = style.fillStyle;
-					c.strokeStyle   = style.strokeStyle;
-					c.lineWidth     = style.lineWidth;
-					c.globalAlpha   = style.globalAlpha;
-					c.shadowColor   = style.shadowColor;
-					c.shadowOffsetX = style.shadowOffsetX;
-					c.shadowOffsetY = style.shadowOffsetY;
-					c.shadowBlur    = style.shadowBlur;
-		
-					// draw the tile.
-					var v = t.vertices();
-		
-					c.moveTo( v[0].x, v[0].y );
-					for ( var i=1; i <v.length; i++ ) {
-						c.lineTo( v[i].x, v[i].y );
-					}
-
-					c.closePath();
-					c.stroke();
-					c.fill();
-
-					self.execute_hooks( 'tile_draw_surface_end', { 
-						'context' : c, 
-						'point'   : v, 
-						'tile'    : t, 
-					});
-				}
-			}
-		});
-		if ( self.is_3d ) {
-			var sides3d = new Kinetic.Shape( function() {
+		for ( var z=1; z<=self.max_tile_height; z++ ) {
+			var surface = new Kinetic.Shape({ drawFunc:  function() {
 				var c = this.getContext();
 				for ( var y=0; y < self.map.length; y++ ) {
-					for ( var x=0; x < self.map[0].length; x++ ) {
+					for ( var x=0; x < self.map[y].length; x++ ) {
 						var t = self.map[y][x];
-						if ( ! t ) continue; 
+						if ( (!t) || t.z != z  ) continue;
+	
+						t = self.execute_hooks( 'new_tile_start', t );
+	
 						var style = self._style[ t.style ];
-
+	
 						c.beginPath();
-		
+	
 						// apply the current style for this tile
-						c.fillStyle     = style.side_fillStyle;
-						c.strokeStyle   = style.side_strokeStyle;
-						c.lineWidth     = style.side_lineWidth;
-						c.globalAlpha   = style.side_globalAlpha;
-		
-						h = t.z * self._tile.height_3d;
-		
+						c.fillStyle     = style.fillStyle;
+						c.strokeStyle   = style.strokeStyle;
+						c.lineWidth     = style.lineWidth;
+						c.globalAlpha   = style.globalAlpha;
+						c.shadowColor   = style.shadowColor;
+						c.shadowOffsetX = style.shadowOffsetX;
+						c.shadowOffsetY = style.shadowOffsetY;
+						c.shadowBlur    = style.shadowBlur;
+			
+						// draw the tile.
 						var v = t.vertices();
-						c.beginPath();
-						c.moveTo( v[5].x, v[5].y );
-						c.lineTo( v[5].x, v[5].y + h );
-						c.lineTo( v[4].x, v[4].y + h );
-						c.lineTo( v[4].x, v[4].y );
-						c.lineTo( v[5].x, v[5].y );
-						c.stroke();
-						c.fill()
 			
-						c.beginPath();
-						c.moveTo( v[2].x, v[2].y );
-						c.lineTo( v[2].x, v[2].y + h );
-						c.lineTo( v[3].x, v[3].y + h );
-						c.lineTo( v[3].x, v[3].y );
-						c.lineTo( v[2].x, v[2].y );
-						c.stroke();
-						c.fill()
-			
-						c.fillStyle = style.side_fillStyle2;
-						c.beginPath();
-						c.moveTo( v[4].x, v[4].y );
-						c.lineTo( v[4].x, v[4].y + h );
-						c.lineTo( v[3].x, v[3].y + h );
-						c.lineTo( v[3].x, v[3].y );
-						c.lineTo( v[4].x, v[4].y );
+						c.moveTo( v[0].x, v[0].y );
+						for ( var i=1; i <v.length; i++ ) {
+							c.lineTo( v[i].x, v[i].y );
+						}
+	
+						c.closePath();
 						c.stroke();
 						c.fill();
+	
+						self.execute_hooks( 'tile_draw_surface_end', { 
+							'context' : c, 
+							'point'   : v, 
+							'tile'    : t, 
+						});
 					}
 				}
-			});
-		}
+			}});
+			if ( self.is_3d ) {
+				var sides3d = new Kinetic.Shape({ drawFunc:  function() {
+					var c = this.getContext();
+					for ( var y=0; y < self.map.length; y++ ) {
+						for ( var x=0; x < self.map[y].length; x++ ) {
+							var t = self.map[y][x];
+							if ( (!t) || t.z != z  ) continue;
+							var style = self._style[ t.style ];
+	
+							c.beginPath();
+			
+							// apply the current style for this tile
+							c.fillStyle     = style.side_fillStyle;
+							c.strokeStyle   = style.side_strokeStyle;
+							c.lineWidth     = style.side_lineWidth;
+							c.globalAlpha   = style.side_globalAlpha;
+			
+							h = t.z * self._tile.height_3d;
+			
+							var v = t.vertices();
+							c.beginPath();
+							c.moveTo( v[5].x, v[5].y );
+							c.lineTo( v[5].x, v[5].y + h );
+							c.lineTo( v[4].x, v[4].y + h );
+							c.lineTo( v[4].x, v[4].y );
+							c.lineTo( v[5].x, v[5].y );
+							c.stroke();
+							c.fill()
+				
+							c.beginPath();
+							c.moveTo( v[2].x, v[2].y );
+							c.lineTo( v[2].x, v[2].y + h );
+							c.lineTo( v[3].x, v[3].y + h );
+							c.lineTo( v[3].x, v[3].y );
+							c.lineTo( v[2].x, v[2].y );
+							c.stroke();
+							c.fill()
+				
+							c.fillStyle = style.side_fillStyle2;
+							c.beginPath();
+							c.moveTo( v[4].x, v[4].y );
+							c.lineTo( v[4].x, v[4].y + h );
+							c.lineTo( v[3].x, v[3].y + h );
+							c.lineTo( v[3].x, v[3].y );
+							c.lineTo( v[4].x, v[4].y );
+							c.stroke();
+							c.fill();
+						}
+					}
+				}});
+			}
+
+			// draw the shapes on the canvas
+			var tile_layer = self.get_or_add_layer('tiles' + z );
+			tile_layer.add( surface );
+			tile_layer.draw();
+			if ( self.is_3d ) {
+				var sides_layer = self.get_or_add_layer('3dtiles' + z );
+				sides_layer.add( sides3d );
+				sides_layer.draw();
+			}
+
+		}	
 
 		self.execute_hooks( 'tile_draw_end', self );
 
-		var tile_layer = self.get_layer('tiles');
-		// draw the shapes on the canvas
-		tile_layer.add( surface );
-		tile_layer.draw();
-		if ( self.is_3d ) {
-			var sides_layer = self.get_layer('3dtiles');
-			sides_layer.add( sides3d );
-			sides_layer.draw();
-		}
-
 		// set up event listeners
-		self.stage.on( "mousemove", function(e) {
+		//self.stage.on( "mousemove", function(e) {
+		document.getElementById( self.id ).addEventListener('mousemove', function(e) {
 			var t = self.tile_at(e);
 			if ( t )
 				self.highlight( t );
 
 		});
-		self.stage.on( "mouseout", function(e) {
-			//self.reset_tiles();
+		//self.stage.on( "mouseout", function(e) {
+		document.getElementById( self.id ).addEventListener('mousemove', function(e) {
+			self.reset_tiles();
 		});
-		self.stage.on( "click", function(e) {
-
+		document.getElementById( self.id ).addEventListener('click', function(e) {
 			var t = self.tile_at(e);
-
 			if ( ! t ) return;
-
 			if ( t.style != 'hidden' && t.style != 'disabled' ) {
 				t.set_style('hidden');
 			}
@@ -205,9 +206,8 @@ var Board = function(args) {
 			x: v1[0].x - v2[0].x, 
 			y: v1[0].y - v2[0].y
 		};
-		console.log(offset);
 
-		self.cursor = new Kinetic.Shape(function() {
+		self.cursor = new Kinetic.Shape({ drawFunc: function() {
 			var style = self._style[ 'highlight' ];
 
 			c = this.getContext();
@@ -240,15 +240,24 @@ var Board = function(args) {
 			c.closePath();
 			c.stroke();
 			c.fill();
-		});
-		self.get_layer('ui').add( self.cursor );
-		self.get_layer('ui').draw();
+		}});
+
+		var current = self.get_layer('cursor').getZIndex();
+		var c = self.get_layer('cursor');
+		var diff = self.get_layer('tiles1').getZIndex() + t.z - current;
+		if ( diff > 0 ) {
+			for ( var i=0; i<diff; i++ ) c.moveUp();
+		} else {
+			for ( var i=0; i<Math.abs(diff); i++ ) c.moveDown();
+		}
+		c.add( self.cursor );
+		c.draw();
 		return self.cursor;
 	};
 
 	self.reset_cursor = function() {
 		if ( self.cursor )
-			self.get_layer('ui').remove(self.cursor);
+			self.get_layer('cursor').remove(self.cursor);
 	};
 
 	self.set_cursor = function( args ) {
@@ -267,7 +276,6 @@ var Board = function(args) {
 					'on'       : args.map[y][x] ? true : false,
 					'vertices' : t.vertices(),
 				};
-				console.log( y, x, self._cursor[y][x] );
 			}
 		}
 	};
@@ -290,7 +298,7 @@ var Board = function(args) {
 		for ( var y=0; y < self.map.length; y++ ) {
 			for ( var x=0; x < self.map[0].length; x++ ) {
 				if ( ! self.map[y][x] ) continue;
-				if ( self.map[y][x].contains( { 'x' : e.clientX, 'y' : e.clientY } ) )
+				if ( self.map[y][x].contains( { 'x' : e.offsetX, 'y' : e.offsetY } ) )
 					return self.map[y][x];
 			}
 		}
@@ -314,7 +322,13 @@ var Board = function(args) {
 
 	self.add_layer = function(name, index) {
 		if ( ! index ) index=self._layers.length;
-		self._layers.splice(index, 0, { 'name' : name, 'obj' : new Kinetic.Layer() });
+		self._layers.splice(index, 0, { 
+			'name' : name, 
+			'obj' : new Kinetic.Layer({
+				'name' : name,
+			}),
+		 });
+		self.stage.add( self._layers[index].obj );
 		return self._layers[index].obj;
 	};
 
@@ -326,7 +340,7 @@ var Board = function(args) {
 	self.get_layer_position = function(name) {
 		for ( var i in self._layers ) {
 			if ( self._layers[i].name == name )
-				return i;
+				return parseInt(i);
 		}
 		return undefined;
 	};
@@ -337,6 +351,11 @@ var Board = function(args) {
 		}
 		return undefined;
 	};
+	self.get_or_add_layer = function(name) {
+		var l = self.get_layer(name);
+		return l ? l : self.add_layer(name);
+	};	
+
 	self.get_layers = function() {
 		var o = [];
 		for ( var l in self._layers ) {
@@ -429,21 +448,20 @@ var Board = function(args) {
 		});
 
 		// set up the KineticJS stage
-		self.stage  = new Kinetic.Stage( self.id, ( self.width || self.pixelwidth ), ( self.height || self.pixelheight ) );
+		self.stage  = new Kinetic.Stage( { 
+			container : self.id, 
+			width     : ( self.width || self.pixelwidth ), 
+			height    : ( self.height || self.pixelheight ),
+		});
 	
 		self.add_layer('background').listen(false);
-		self.add_layer('3dtiles').listen(false);
-		self.add_layer('tiles');
-		self.add_layer('ui');
-
-		self.get_layer_at(0).add( new Kinetic.Shape(function() {
+		self.get_layer_at(0).add( new Kinetic.Shape({ drawFunc: function() {
 			c = this.getContext();
 			c.beginPath();
 		   	c.fillStyle = "#444466";
 			c.fillRect( 0, 0, self.pixelwidth, self.pixelheight );
 			c.closePath();
-		}) );
-
+		}}) );
 
 		for ( i in BoardPlugins ) {
 			var plugin = BoardPlugins[i];
@@ -459,6 +477,9 @@ var Board = function(args) {
 		self.rows = 0;
 		self.cols = 0;
 	
+		// the tallest z value on any tile in the board.
+		self.max_tile_height = 1;
+
 		for ( var y=0; y < args.map.length; y++ ) {
 			for ( var x=0; x < args.map[0].length; x++ ) {
 	
@@ -477,8 +498,16 @@ var Board = function(args) {
 				// update the dimensions as we go
 				if ( self.cols < x ) self.cols = x;
 				if ( self.rows < y ) self.rows = y;
+				if ( self.max_tile_height < args.map[y][x] ) self.max_tile_height = args.map[y][x];
 			}
 		}
+		for ( var z=1; z<=self.max_tile_height; z++ ) {	
+			self.add_layer('3dtiles' + z ).listen(false);
+		}
+		for ( var z=1; z<=self.max_tile_height; z++ ) {	
+			self.add_layer('tiles' + z ).listen(false);
+		}
+		self.add_layer('cursor');
 		return self;
 	};
 	
@@ -531,10 +560,8 @@ function Tile( args ) {
 		this.style = name;
 		this.parent.execute_hooks( 'tile_set_style_end', this );
 
-		this.parent.get_layer('tiles').draw();
-		this.parent.get_layer('3dtiles').draw();
-
-		
+		this.parent.get_layer('tiles' + this.z ).draw();
+		this.parent.get_layer('3dtiles' + this.z ).draw();
 	};
 
 	this.vertices = function() {
